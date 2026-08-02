@@ -1,0 +1,33 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_BASE_URL: "http://host.docker.internal:11434"
+      QDRANT_HOST: "qdrant"
+      QDRANT_PORT: "6333"
+      CHAT_MODEL: "llama3.2:latest"
+      EMBED_MODEL: "nomic-embed-text:latest"
+      CORS_ALLOW_ORIGINS: '["http://localhost:5500"]'
+    depends_on:
+      - qdrant
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5500:80"
+    depends_on:
+      - backend
+
+volumes:
+  qdrant_data:

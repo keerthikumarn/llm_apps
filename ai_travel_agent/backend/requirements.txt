@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+mem0ai
+ollama

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderline — AI Travel Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="wordmark">Lone<span>Traveller</span></div>
+    <div class="route">passenger: <strong id="routeName">unassigned</strong> · desk: local ollama</div>
+  </header>
+
+  <main class="ticket">
+    <aside class="stub">
+      <div>
+        <label class="field-label" for="userIdInput">Passenger name</label>
+        <input type="text" id="userIdInput" placeholder="e.g. keerthi" autocomplete="off">
+        <p class="passenger-name" id="passengerDisplay"></p>
+      </div>
+
+      <div class="stub-section">
+        <p class="stub-section-title">
+          <span>Memory stamps</span>
+          <button class="clear-link" id="clearBtn" disabled>Clear</button>
+        </p>
+        <div class="stamps" id="stampsList"></div>
+        <p class="empty-note" id="stampsEmpty">No stamps yet — chat a while and I'll start remembering what you like.</p>
+      </div>
+    </aside>
+
+    <div class="perforation"></div>
+
+    <section class="chat-col">
+      <div id="lockedOverlay" class="locked-overlay">
+        <p>Enter a passenger name to check in and start the conversation.</p>
+      </div>
+
+      <div class="chat-thread" id="chatThread">
+        <div class="chat-empty" id="chatEmptyState">
+          <div class="icon">🧭</div>
+          <h2>Your itinerary is blank</h2>
+          <p>Tell me where you're dreaming of going, what kind of trip you like, or what you're planning next.</p>
+        </div>
+      </div>
+
+      <div id="errorBanner" class="error-banner" style="display:none;"></div>
+
+      <div class="composer">
+        <textarea id="messageInput" rows="1" placeholder="Where would you like to go?" disabled></textarea>
+        <button class="send-btn" id="sendBtn" disabled>Send →</button>
+      </div>
+    </section>
+  </main>
+
+<script src="script.js"></script>
+</body>
+</html>
