@@ -1,4 +1,4 @@
-  const API_BASE = "http://localhost:8000";
+const API_BASE = "http://localhost:8000";
 
   const state = {
     userId: "",
@@ -120,12 +120,22 @@
     if (t) t.remove();
   }
 
-  function appendMemoriesUsedTag(row, memoriesUsed) {
-    if (!memoriesUsed || memoriesUsed.length === 0) return;
+  function appendMemoriesUsedTag(row, memoriesUsed, intent) {
+    const hasMemories = memoriesUsed && memoriesUsed.length > 0;
+    const showIntent = intent && intent !== "general";
+    if (!hasMemories && !showIntent) return;
+
     const mu = document.createElement("div");
     mu.className = "memories-used";
-    const count = memoriesUsed.length;
-    mu.innerHTML = `<span>recalled: ${count} stamp${count > 1 ? "s" : ""}</span>`;
+    let html = "";
+    if (showIntent) {
+      html += `<span>intent: ${intent.replace("_", " ")}</span>`;
+    }
+    if (hasMemories) {
+      const count = memoriesUsed.length;
+      html += `<span>recalled: ${count} stamp${count > 1 ? "s" : ""}</span>`;
+    }
+    mu.innerHTML = html;
     row.appendChild(mu);
   }
 
@@ -148,6 +158,7 @@
     let bubbleEl = null;
     let fullText = "";
     let memoriesUsed = [];
+    let intent = "general";
     let gotFirstToken = false;
 
     try {
@@ -177,7 +188,9 @@
           if (!line.trim()) continue;
           const evt = JSON.parse(line);
 
-          if (evt.type === "memories") {
+          if (evt.type === "intent") {
+            intent = evt.data || "general";
+          } else if (evt.type === "memories") {
             memoriesUsed = evt.data || [];
           } else if (evt.type === "token") {
             if (!gotFirstToken) {
@@ -195,7 +208,7 @@
           } else if (evt.type === "done") {
             if (assistantRow) {
               assistantRow.classList.remove("streaming");
-              appendMemoriesUsedTag(assistantRow, memoriesUsed);
+              appendMemoriesUsedTag(assistantRow, memoriesUsed, intent);
             }
           }
         }

@@ -1,12 +1,17 @@
+"""Pydantic models defining the API's request/response contracts."""
 from pydantic import BaseModel, Field
+
 
 class ChatRequest(BaseModel):
     user_id: str = Field(..., min_length=1, description="Unique identifier for the user")
     message: str = Field(..., min_length=1, description="The user's chat message")
 
+
 class ChatResponse(BaseModel):
     reply: str
     memories_used: list[str] = Field(default_factory=list)
+    intent: str = "general"
+
 
 class MemoryItem(BaseModel):
     id: str | None = None
