@@ -7,27 +7,23 @@ from app.services.chat_service import chat_service
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
-@router.post("", response_model=ChatResponse)
+@router.post("", response_model = ChatResponse)
 def send_message(payload: ChatRequest) -> ChatResponse:
     try:
-        reply, memories_used, intent = chat_service.handle_message(
-            user_id = payload.user_id, message = payload.message
+        reply, memories_used, intent, suggestions = chat_service.handle_message(
+            user_id = payload.user_id, message = payload.message, agent = payload.agent
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code = 500, detail = str(exc)) from exc
 
-    return ChatResponse(reply=reply, memories_used=memories_used, intent=intent)
+    return ChatResponse(reply = reply, memories_used = memories_used, intent = intent, suggestions = suggestions)
 
 
 @router.post("/stream")
 def send_message_stream(payload: ChatRequest) -> StreamingResponse:
-    """
-    Streaming counterpart to POST /api/chat. Returns newline-delimited JSON
-    events (see ChatService.handle_message_stream for the event shapes)
-    instead of a single response body, so the client can render tokens as
-    they arrive.
-    """
     return StreamingResponse(
-        chat_service.handle_message_stream(user_id = payload.user_id, message = payload.message),
+        chat_service.handle_message_stream(
+            user_id = payload.user_id, message = payload.message, agent = payload.agent
+        ),
         media_type = "application/x-ndjson",
     )

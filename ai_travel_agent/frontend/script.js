@@ -18,7 +18,15 @@ const API_BASE = "http://localhost:8000";
     errorBanner: document.getElementById("errorBanner"),
     messageInput: document.getElementById("messageInput"),
     sendBtn: document.getElementById("sendBtn"),
+    quickChips: document.getElementById("quickChips"),
   };
+
+  function setChipsDisabled(disabled) {
+    if (!el.quickChips) return;
+    el.quickChips.querySelectorAll(".chip").forEach((btn) => {
+      btn.disabled = disabled;
+    });
+  }
 
   function showError(message) {
     el.errorBanner.textContent = message;
@@ -33,6 +41,7 @@ const API_BASE = "http://localhost:8000";
     el.messageInput.disabled = locked || state.sending;
     el.sendBtn.disabled = locked || state.sending;
     el.clearBtn.disabled = locked;
+    setChipsDisabled(locked);
   }
 
   function renderStamps(memories) {
@@ -139,18 +148,47 @@ const API_BASE = "http://localhost:8000";
     row.appendChild(mu);
   }
 
-  async function sendMessage() {
-    const text = el.messageInput.value.trim();
+  function renderAgentSuggestions(row, suggestions) {
+    if (!suggestions || suggestions.length === 0) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = "agent-suggestions";
+
+    const label = document.createElement("div");
+    label.className = "suggestions-label";
+    label.textContent = "Continue with a specialist agent";
+    wrap.appendChild(label);
+
+    suggestions.forEach((s) => {
+      const btn = document.createElement("button");
+      btn.className = "suggestion-btn";
+      btn.textContent = s.label;
+      btn.addEventListener("click", () => {
+        wrap.querySelectorAll(".suggestion-btn").forEach((b) => (b.disabled = true));
+        sendMessage(s.message, s.agent);
+      });
+      wrap.appendChild(btn);
+    });
+
+    row.appendChild(wrap);
+  }
+
+  async function sendMessage(overrideText, overrideAgent) {
+    const text = (overrideText !== undefined ? overrideText : el.messageInput.value).trim();
     if (!text || state.sending || !state.userId) return;
 
     clearError();
     addBubble("user", text);
-    el.messageInput.value = "";
-    el.messageInput.style.height = "auto";
+    if (overrideText === undefined) {
+      el.messageInput.value = "";
+      el.messageInput.style.height = "auto";
+    }
+    el.chatEmptyState.style.display = "none";
 
     state.sending = true;
     el.sendBtn.disabled = true;
     el.messageInput.disabled = true;
+    setChipsDisabled(true);
     addTypingIndicator();
 
     // Placeholder bubble that gets filled in as tokens stream.
@@ -159,13 +197,18 @@ const API_BASE = "http://localhost:8000";
     let fullText = "";
     let memoriesUsed = [];
     let intent = "general";
+    let suggestions = [];
     let gotFirstToken = false;
 
     try {
       const res = await fetch(`${API_BASE}/api/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: state.userId, message: text }),
+        body: JSON.stringify({
+          user_id: state.userId,
+          message: text,
+          agent: overrideAgent || null,
+        }),
       });
 
       if (!res.ok || !res.body) {
@@ -192,6 +235,8 @@ const API_BASE = "http://localhost:8000";
             intent = evt.data || "general";
           } else if (evt.type === "memories") {
             memoriesUsed = evt.data || [];
+          } else if (evt.type === "suggestions") {
+            suggestions = evt.data || [];
           } else if (evt.type === "token") {
             if (!gotFirstToken) {
               removeTypingIndicator();
@@ -209,6 +254,8 @@ const API_BASE = "http://localhost:8000";
             if (assistantRow) {
               assistantRow.classList.remove("streaming");
               appendMemoriesUsedTag(assistantRow, memoriesUsed, intent);
+              renderAgentSuggestions(assistantRow, suggestions);
+              el.chatThread.scrollTop = el.chatThread.scrollHeight;
             }
           }
         }
@@ -229,6 +276,7 @@ const API_BASE = "http://localhost:8000";
       state.sending = false;
       el.sendBtn.disabled = false;
       el.messageInput.disabled = false;
+      setChipsDisabled(false);
       el.messageInput.focus();
     }
   }
@@ -246,7 +294,16 @@ const API_BASE = "http://localhost:8000";
     }
   });
 
-  el.sendBtn.addEventListener("click", sendMessage);
+  el.sendBtn.addEventListener("click", () => sendMessage());
+
+  if (el.quickChips) {
+    el.quickChips.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        sendMessage(btn.dataset.message);
+      });
+    });
+  }
+
   el.messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();

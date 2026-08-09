@@ -17,6 +17,9 @@ class Intent(StrEnum):
     HOTELS = "hotels"
     PREFERENCE = "preference"
     CLEAR_MEMORY = "clear_memory"
+    FLIGHT_BOOKING = "flight_booking"
+    BUS_BOOKING = "bus_booking"
+    HOTEL_BOOKING = "hotel_booking"
     GENERAL = "general"
 
 
@@ -25,9 +28,12 @@ Respond with ONLY the category word — no punctuation, no explanation, nothing 
 
 Categories:
 itinerary - asking for a day-by-day travel plan or schedule
-hotels - asking for hotel or accommodation recommendations
+hotels - asking for hotel or accommodation recommendations (not booking, just suggestions)
 preference - stating a personal travel preference or fact about themselves
 clear_memory - asking to forget, reset, or clear what's remembered about them
+flight_booking - asking for help booking or finding a flight
+bus_booking - asking for help booking or finding a bus/train
+hotel_booking - asking for help booking a specific hotel/stay
 general - anything else (greetings, general questions, follow-ups, small talk)"""
 
 VALID_VALUES = {i.value for i in Intent}
@@ -49,6 +55,18 @@ class IntentService:
         cleaned = first_word.strip(".,!?\"'")
 
         return Intent(cleaned) if cleaned in VALID_VALUES else Intent.GENERAL
+
+    @staticmethod
+    def from_override(agent: str | None) -> Intent | None:
+        """
+        Validate a direct agent selection from the frontend (e.g. a clicked
+        suggestion button). Returns None if the value isn't a recognized
+        agent, so the caller can fall back to normal classification.
+        """
+        if not agent:
+            return None
+        cleaned = agent.strip().lower()
+        return Intent(cleaned) if cleaned in VALID_VALUES else None
 
 
 intent_service = IntentService()

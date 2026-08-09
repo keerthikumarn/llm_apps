@@ -1,4 +1,4 @@
-  :root {
+:root {
     --ink: #16213E;
     --ink-soft: #1D2C4F;
     --paper: #F6F1E7;
@@ -267,6 +267,72 @@
     color: var(--muted);
     line-height: 1.55;
     margin: 0;
+  }
+
+  .quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 18px;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    border-radius: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .chip:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .chip:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .agent-suggestions {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 260px;
+  }
+  .agent-suggestions .suggestions-label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .agent-suggestions .suggestion-btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--teal);
+    color: var(--teal);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .agent-suggestion-btn:hover:not(:disabled),
+  .agent-suggestions .suggestion-btn:hover:not(:disabled) {
+    background: var(--teal);
+    color: #fff;
+  }
+  .agent-suggestions .suggestion-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
   .bubble-row {
