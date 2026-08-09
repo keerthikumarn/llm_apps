@@ -1,8 +1,9 @@
-# Wanderline — AI Travel Concierge
+# LoneTraveller — AI Travel Recommendation Engine
 
 A local-first travel chat assistant with persistent memory, built on:
 - **Backend:** FastAPI + mem0 (fact extraction/recall) + Qdrant (vector store)
 - **LLM:** Ollama, running fully on your machine (`llama3.2` for chat, `nomic-embed-text` for embeddings)
+- **Amadeus APIs** For flight bookings
 - **Frontend:** plain HTML/CSS/JS, no build step
 
 ```
